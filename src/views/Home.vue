@@ -53,7 +53,35 @@
         <div style="padding:0 .2rem">
           <div class="form-line">
             <span>*预约时间</span>
-            <date-pick v-model="date"></date-pick>
+            <date-pick
+              v-model="date"
+              :isDateDisabled="isFutureDate"
+              :inputAttributes="{ readonly: true }"
+              :startWeekOnSunday="true"
+              :weekdays="[
+                '周一',
+                '周二',
+                '周三',
+                '周四',
+                '周五',
+                '周六',
+                '周日'
+              ]"
+              :months="[
+                '一月',
+                '二月',
+                '三月',
+                '四月',
+                '五月',
+                '六月',
+                '七月',
+                '八月',
+                '九月',
+                '十月',
+                '十一月',
+                '十二月'
+              ]"
+            ></date-pick>
           </div>
           <div class="form-line">
             <span>*预约人手机号</span>
@@ -133,6 +161,10 @@ export default {
   },
   components: { DatePick },
   methods: {
+    isFutureDate(date) {
+      const currentDate = new Date() - 1 * 24 * 60 * 60 * 1000;
+      return date < currentDate;
+    },
     getTicketInfo() {
       axios.get("/hl/pro/scenery/appoint/stat").then(res => {
         if (res.status === 200) {
@@ -153,13 +185,6 @@ export default {
     handleSubmit() {
       if (!this.date) {
         this.$alert("请选择预约时间");
-        return;
-      }
-      if (
-        dayjs(this.date).isBefore("2020-4-29") ||
-        dayjs(this.date).isAfter("2020-4-30")
-      ) {
-        this.$alert("预约时间段为：2020-4-29至2020-4-30");
         return;
       }
       if (!this.mobile) {
@@ -185,11 +210,16 @@ export default {
           if (res.status === 200) {
             const data = res.data;
             if (data.code === "0") {
-              this.$alert("预约成功!");
               this.date = "";
               this.mobile = "";
               this.name = "";
               this.idCard = "";
+              this.$router.push({
+                path: "/record-success",
+                query: {
+                  code: data.data
+                }
+              });
             } else {
               this.$alert(data.message);
             }

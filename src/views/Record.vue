@@ -8,7 +8,27 @@
         </div>
         <div class="form-line">
           <span>*预约时间</span>
-          <date-pick v-model="date"></date-pick>
+          <date-pick
+            v-model="date"
+            :isDateDisabled="isFutureDate"
+            :inputAttributes="{ readonly: true }"
+            :startWeekOnSunday="true"
+            :weekdays="['周一', '周二', '周三', '周四', '周五', '周六', '周日']"
+            :months="[
+              '一月',
+              '二月',
+              '三月',
+              '四月',
+              '五月',
+              '六月',
+              '七月',
+              '八月',
+              '九月',
+              '十月',
+              '十一月',
+              '十二月'
+            ]"
+          ></date-pick>
         </div>
       </div>
     </section>
@@ -30,7 +50,23 @@
           </div>
           <div class="item">
             <span>状态：</span>
-            <span>{{ item.status }}</span>
+            <span
+              :style="{
+                color:
+                  item.status === 1
+                    ? 'green'
+                    : item.status === 2
+                    ? 'gray'
+                    : 'red'
+              }"
+              >{{
+                item.status === 1
+                  ? "可用"
+                  : item.status === 2
+                  ? "已核销"
+                  : "已过期"
+              }}</span
+            >
           </div>
         </div>
         <div class="right">
@@ -60,6 +96,10 @@ export default {
   },
   components: { DatePick, VueQrcode },
   methods: {
+    isFutureDate(date) {
+      const currentDate = new Date() - 1 * 24 * 60 * 60 * 1000;
+      return date < currentDate;
+    },
     handleSubmit() {
       this.list = [];
       if (!this.mobile) {
