@@ -2,25 +2,20 @@
   <div class="record_success">
     <section>
       <div class="top">
-        <div class="title">
-          预约入场券
-        </div>
+        <div class="title">预约入场券</div>
         <div class="content">
           <span>{{ code }}</span>
-          <vue-qrcode :value="code" />
+          <vue-qrcode :text="code" :size="250" :logoSrc="logoSrc" />
         </div>
         <span class="tip">请截图保存当前页面，以作为核销凭证</span>
       </div>
-      <div class="bottom">
-        使用说明：请在景区入口出示工作人员进行核销
-      </div>
+      <div class="bottom">使用说明：请在景区入口出示工作人员进行核销</div>
     </section>
   </div>
 </template>
 
 <script>
-import VueQrcode from "vue-qrcode";
-
+import VueQrcode from "vue-qr";
 export default {
   name: "Record",
   components: { VueQrcode },
@@ -30,7 +25,8 @@ export default {
   },
   data: function() {
     return {
-      code: "12345"
+      code: "12345",
+      logoSrc: require("../assets/logo.png")
     };
   }
 };
@@ -56,7 +52,7 @@ export default {
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 0.72rem;
+      padding-bottom: 0.42rem;
       .title {
         width: 2.9rem;
         height: 1rem;
@@ -79,17 +75,14 @@ export default {
           font-family: PingFang SC;
           font-weight: 500;
           color: rgba(34, 34, 34, 1);
-        }
-        img {
-          width: 5rem;
-          height: 5rem;
+          margin-top: 0.1rem;
         }
       }
       .tip {
-        font-size: 0.28rem;
+        font-size: 0.34rem;
         font-family: PingFang SC;
         font-weight: 500;
-        color: rgba(102, 102, 102, 1);
+        color: red;
       }
     }
     .bottom {

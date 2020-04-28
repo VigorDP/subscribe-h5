@@ -13,7 +13,7 @@
         <h2>*请选择预约时间{{isBefore51(today)?'':'（预约已结束）'}}</h2>
         <div class="select">
           <span>请选择时间：</span>
-          <span>{{date.format("MM月DD日")}}</span>
+          <span>{{'已选择'+date.format("MM月DD日")}}</span>
         </div>
         <div class="section1">
           <div class="line">

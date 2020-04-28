@@ -6,74 +6,11 @@
           <span>*预约人手机号</span>
           <input type="text" placeholder="请输入手机号" v-model="mobile" />
         </div>
-        <div class="form-line">
-          <span>*预约时间</span>
-          <date-pick
-            v-model="date"
-            :isDateDisabled="isFutureDate"
-            :inputAttributes="{ readonly: true }"
-            :startWeekOnSunday="true"
-            :weekdays="['周一', '周二', '周三', '周四', '周五', '周六', '周日']"
-            :months="[
-              '一月',
-              '二月',
-              '三月',
-              '四月',
-              '五月',
-              '六月',
-              '七月',
-              '八月',
-              '九月',
-              '十月',
-              '十一月',
-              '十二月'
-            ]"
-          ></date-pick>
-        </div>
       </div>
     </section>
 
     <section class="submit">
       <button @click="handleSubmit">查询</button>
-    </section>
-
-    <section class="list">
-      <div class="record-line" v-for="item in list" :key="item.id">
-        <div class="left">
-          <div class="item">
-            <span>入园人姓名：</span>
-            <span>{{ item.name }}</span>
-          </div>
-          <div class="item">
-            <span>入园人身份证号：</span>
-            <span>{{ item.idCard }}</span>
-          </div>
-          <div class="item">
-            <span>状态：</span>
-            <span
-              :style="{
-                color:
-                  item.status === 1
-                    ? 'green'
-                    : item.status === 2
-                    ? 'gray'
-                    : 'red'
-              }"
-              >{{
-                item.status === 1
-                  ? "可用"
-                  : item.status === 2
-                  ? "已核销"
-                  : "已过期"
-              }}</span
-            >
-          </div>
-        </div>
-        <div class="right">
-          <vue-qrcode :value="item.code" />
-          <span>景区预约码：{{ item.code }}</span>
-        </div>
-      </div>
     </section>
   </div>
 </template>
@@ -82,46 +19,40 @@
 // @ is an alias to /src
 import axios from "axios";
 import dayjs from "dayjs";
-import DatePick from "vue-date-pick";
-import "vue-date-pick/dist/vueDatePick.css";
-import VueQrcode from "vue-qrcode";
+import VueQrcode from "vue-qr";
 export default {
   name: "Record",
   data: function() {
     return {
       mobile: "",
-      date: "",
-      list: []
+      logoSrc: require("../assets/logo.png")
     };
   },
-  components: { DatePick, VueQrcode },
+  components: { VueQrcode },
   methods: {
-    isFutureDate(date) {
-      const currentDate = new Date() - 1 * 24 * 60 * 60 * 1000;
-      return date < currentDate;
-    },
     handleSubmit() {
-      this.list = [];
       if (!this.mobile) {
-        this.$alert("预约人手机号为空或格式有误");
-        return;
-      }
-      if (!this.date) {
         this.$alert("预约人手机号为空或格式有误");
         return;
       }
       axios
         .get(
-          `/hl/pro/scenery/appoint/list?tel=${this.mobile}&date=${dayjs(
-            this.date
-          ).format("YYYY-MM-DD")}`
+          `/hl/pro/scenery/appoint/list?tel=${
+            this.mobile
+          }&date=${dayjs().format("YYYY-MM-DD")}`
         )
         .then(res => {
           if (res.status === 200) {
             const data = res.data;
             if (data.code === "0") {
-              this.list = data.data;
-              if (this.list.length === 0) {
+              this.$router.push({
+                path: "/record-list",
+                query: {
+                  mobile: this.mobile,
+                  list: data.data
+                }
+              });
+              if (data.data.length === 0) {
                 this.$alert("暂无记录");
               }
             } else {
@@ -181,50 +112,6 @@ export default {
         font-family: PingFang SC;
         font-weight: 500;
         color: rgba(12, 178, 219, 1);
-      }
-    }
-
-    &.list {
-      margin-top: 1rem;
-      .record-line {
-        width: 6.34rem;
-        margin: 0 auto;
-        margin-bottom: 0.4rem;
-        height: 2.93rem;
-        border-radius: 0.16rem;
-        text-align: center;
-        border: 1px solid rgba(187, 187, 187, 1);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        .left,
-        .right {
-          padding: 0.1rem;
-          flex: 1;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          left: 681px;
-          color: rgba(16, 16, 16, 1);
-          font-size: 0.28rem;
-        }
-        .left {
-          border-right: 1px solid rgba(187, 187, 187, 1);
-          justify-content: space-between;
-          .item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-          }
-        }
-        .right {
-          align-items: center;
-          justify-content: space-between;
-          img {
-            width: 2rem;
-            height: 2rem;
-          }
-        }
       }
     }
   }
