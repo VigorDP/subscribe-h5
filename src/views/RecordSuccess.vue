@@ -5,7 +5,7 @@
         <div class="title">预约入场券</div>
         <div class="content">
           <span>{{ code }}</span>
-          <vue-qrcode :text="code" :size="250" :logoSrc="logoSrc" />
+          <vue-qrcode :text="code" :size="200" :logoSrc="logoSrc" />
         </div>
         <span class="tip">请截图保存当前页面，以作为核销凭证</span>
       </div>

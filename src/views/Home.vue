@@ -8,41 +8,56 @@
         <h2 class="title">沣东·沣河生态景区入园预约</h2>
         <router-link to="/record">预约查询</router-link>
       </header>
-      <p class="desc">为了保障景区安全及您的游览体验，请在下方完成入园预约并持二维码进入。</p>
+      <p class="desc">
+        为了保障景区安全及您的游览体验，请在下方完成入园预约并持二维码进入。
+      </p>
       <section>
-        <h2>*请选择预约时间{{isBefore51(today)?'':'（预约已结束）'}}</h2>
+        <h2>*请选择预约时间{{ isBefore51(today) ? "" : "（预约已结束）" }}</h2>
         <div class="select">
           <span>请选择时间：</span>
-          <span>{{'已选择'+date.format("MM月DD日")}}</span>
+          <span>{{ "已选择" + date.format("MM月DD日") }}</span>
         </div>
         <div class="section1">
           <div class="line">
-            <div class="item" :class="today_class" @click="select(today)" v-if="isBefore51(today)">
+            <div
+              class="item"
+              :class="
+                currentSelected === today
+                  ? `left ${today_class}`
+                  : `${today_class}`
+              "
+              @click="select(today)"
+              v-if="isBefore51(today)"
+            >
               <span>{{ today.format("MM月DD日") }}</span>
               <span>
                 {{
-                ticket_today > 100
-                ? "充足"
-                : ticket_today === 0
-                ? "已售完"
-                : `剩余${ticket_today}`
+                  ticket_today > 100
+                    ? "充足"
+                    : ticket_today === 0
+                    ? "已售完"
+                    : `剩余${ticket_today}`
                 }}
               </span>
             </div>
             <div
               class="item"
-              :class="today_after_1_class"
+              :class="
+                currentSelected === today_after_1
+                  ? `left ${today_after_1_class}`
+                  : `${today_after_1_class}`
+              "
               @click="select(today_after_1)"
               v-if="isBefore51(today_after_1)"
             >
               <span>{{ today_after_1.format("MM月DD日") }}</span>
               <span>
                 {{
-                ticket_today_after_1 > 100
-                ? "充足"
-                : ticket_today_after_1 === 0
-                ? "已售完"
-                : `剩余${ticket_today_after_1}`
+                  ticket_today_after_1 > 100
+                    ? "充足"
+                    : ticket_today_after_1 === 0
+                    ? "已售完"
+                    : `剩余${ticket_today_after_1}`
                 }}
               </span>
             </div>
@@ -50,18 +65,22 @@
           <div class="line">
             <div
               class="item"
-              :class="today_after_2_class"
+              :class="
+                currentSelected === today_after_2
+                  ? `left ${today_after_2_class}`
+                  : `${today_after_2_class}`
+              "
               @click="select(today_after_2)"
               v-if="isBefore51(today_after_2)"
             >
               <span>{{ today_after_2.format("MM月DD日") }}</span>
               <span>
                 {{
-                ticket_today_after_2 > 100
-                ? "充足"
-                : ticket_today_after_2 === 0
-                ? "已售完"
-                : `剩余${ticket_today_after_2}`
+                  ticket_today_after_2 > 100
+                    ? "充足"
+                    : ticket_today_after_2 === 0
+                    ? "已售完"
+                    : `剩余${ticket_today_after_2}`
                 }}
               </span>
             </div>
@@ -74,7 +93,12 @@
         <div style="padding:0 .2rem">
           <div class="form-line">
             <span>*预约人手机号</span>
-            <input type="text" placeholder="请输入手机号" v-model="mobile" maxlength="11" />
+            <input
+              type="text"
+              placeholder="请输入手机号"
+              v-model="mobile"
+              maxlength="11"
+            />
           </div>
           <div class="form-line">
             <span>*入园人姓名</span>
@@ -82,7 +106,12 @@
           </div>
           <div class="form-line">
             <span>*入园人身份证</span>
-            <input type="text" placeholder="请输入身份证号" v-model="idCard" maxlength="18" />
+            <input
+              type="text"
+              placeholder="请输入身份证号"
+              v-model="idCard"
+              maxlength="18"
+            />
           </div>
         </div>
       </section>
@@ -117,43 +146,38 @@ export default {
       ticket_today_after_2: 0,
       today: dayjs(),
       today_after_1: dayjs().add(1, "day"),
-      today_after_2: dayjs().add(2, "day")
+      today_after_2: dayjs().add(2, "day"),
+      currentSelected: ""
     };
+  },
+  mounted() {
+    this.currentSelected = this.today;
   },
   computed: {
     today_class: function() {
-      return this.ticket_today > 100
-        ? "enough"
-        : this.ticket_today === 0
-        ? "finish"
-        : "left";
+      return this.ticket_today > 0 ? "enough" : "finish";
     },
     today_after_1_class: function() {
-      return this.ticket_today_after_1 > 100
-        ? "enough"
-        : this.ticket_today_after_1 === 0
-        ? "finish"
-        : "left";
+      return this.ticket_today_after_1 > 0 ? "enough" : "finish";
     },
     today_after_2_class: function() {
-      return this.ticket_today_after_2 > 100
-        ? "enough"
-        : this.ticket_today_after_2 === 0
-        ? "finish"
-        : "left";
+      return this.ticket_today_after_2 > 0 ? "enough" : "finish";
     }
   },
   components: { DatePick },
   methods: {
-    isFutureDate(date) {
-      const currentDate = new Date() - 1 * 24 * 60 * 60 * 1000;
-      return date < currentDate;
-    },
     isBefore51(time) {
       return time.isBefore("2020-04-30 24:00:00");
     },
     select(date) {
-      this.date = dayjs(date);
+      if (
+        (date === this.today && this.ticket_today > 0) ||
+        (date === this.today_after_1 && this.ticket_today_after_1 > 0) ||
+        (date === this.today_after_2 && this.ticket_today_after_2 > 0)
+      ) {
+        this.date = date;
+        this.currentSelected = date;
+      }
     },
     getTicketInfo() {
       axios.get("/hl/pro/scenery/appoint/stat").then(res => {
