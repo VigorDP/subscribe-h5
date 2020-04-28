@@ -4,45 +4,66 @@
       <img alt="Vue logo" src="../assets/bac@2x.png" />
     </div>
     <div class="content">
-      <h2 class="title">沣东·沣河生态景区入园预约</h2>
-      <p class="desc">
-        为了保障景区安全及您的游览体验，请在下方完成入园预约并持二维码进入。
-      </p>
+      <header>
+        <h2 class="title">沣东·沣河生态景区入园预约</h2>
+        <router-link to="/record">预约查询</router-link>
+      </header>
+      <p class="desc">为了保障景区安全及您的游览体验，请在下方完成入园预约并持二维码进入。</p>
       <section>
-        <h2>*当前票源信息</h2>
+        <h2>*请选择预约时间{{isBefore51(today)?'':'（预约已结束）'}}</h2>
+        <div class="select">
+          <span>请选择时间：</span>
+          <span>{{date.format("MM月DD日")}}</span>
+        </div>
         <div class="section1">
           <div class="line">
-            <div class="item" :class="today_class">
-              <span>{{ today }}</span>
-              <span>{{
+            <div class="item" :class="today_class" @click="select(today)" v-if="isBefore51(today)">
+              <span>{{ today.format("MM月DD日") }}</span>
+              <span>
+                {{
                 ticket_today > 100
-                  ? "充足"
-                  : ticket_today === 0
-                  ? "已售完"
-                  : `剩余${ticket_today}`
-              }}</span>
+                ? "充足"
+                : ticket_today === 0
+                ? "已售完"
+                : `剩余${ticket_today}`
+                }}
+              </span>
             </div>
-            <div class="item" :class="today_after_1_class">
-              <span>{{ today_after_1 }}</span>
-              <span>{{
+            <div
+              class="item"
+              :class="today_after_1_class"
+              @click="select(today_after_1)"
+              v-if="isBefore51(today_after_1)"
+            >
+              <span>{{ today_after_1.format("MM月DD日") }}</span>
+              <span>
+                {{
                 ticket_today_after_1 > 100
-                  ? "充足"
-                  : ticket_today_after_1 === 0
-                  ? "已售完"
-                  : `剩余${ticket_today_after_1}`
-              }}</span>
+                ? "充足"
+                : ticket_today_after_1 === 0
+                ? "已售完"
+                : `剩余${ticket_today_after_1}`
+                }}
+              </span>
             </div>
           </div>
           <div class="line">
-            <div class="item" :class="today_after_2_class">
-              <span>{{ today_after_2 }}</span>
-              <span>{{
+            <div
+              class="item"
+              :class="today_after_2_class"
+              @click="select(today_after_2)"
+              v-if="isBefore51(today_after_2)"
+            >
+              <span>{{ today_after_2.format("MM月DD日") }}</span>
+              <span>
+                {{
                 ticket_today_after_2 > 100
-                  ? "充足"
-                  : ticket_today_after_2 === 0
-                  ? "已售完"
-                  : `剩余${ticket_today_after_2}`
-              }}</span>
+                ? "充足"
+                : ticket_today_after_2 === 0
+                ? "已售完"
+                : `剩余${ticket_today_after_2}`
+                }}
+              </span>
             </div>
           </div>
         </div>
@@ -52,40 +73,8 @@
         <h2>*请完善预约信息</h2>
         <div style="padding:0 .2rem">
           <div class="form-line">
-            <span>*预约时间</span>
-            <date-pick
-              v-model="date"
-              :isDateDisabled="isFutureDate"
-              :inputAttributes="{ readonly: true }"
-              :startWeekOnSunday="true"
-              :weekdays="[
-                '周一',
-                '周二',
-                '周三',
-                '周四',
-                '周五',
-                '周六',
-                '周日'
-              ]"
-              :months="[
-                '一月',
-                '二月',
-                '三月',
-                '四月',
-                '五月',
-                '六月',
-                '七月',
-                '八月',
-                '九月',
-                '十月',
-                '十一月',
-                '十二月'
-              ]"
-            ></date-pick>
-          </div>
-          <div class="form-line">
             <span>*预约人手机号</span>
-            <input type="text" placeholder="请输入手机号" v-model="mobile" />
+            <input type="text" placeholder="请输入手机号" v-model="mobile" maxlength="11" />
           </div>
           <div class="form-line">
             <span>*入园人姓名</span>
@@ -93,14 +82,13 @@
           </div>
           <div class="form-line">
             <span>*入园人身份证</span>
-            <input type="text" placeholder="请输入身份证号" v-model="idCard" />
+            <input type="text" placeholder="请输入身份证号" v-model="idCard" maxlength="18" />
           </div>
         </div>
       </section>
 
       <section class="submit">
         <button @click="handleSubmit">提交预约</button>
-        <button><router-link to="/record">预约查询</router-link></button>
       </section>
     </div>
   </div>
@@ -120,20 +108,16 @@ export default {
   },
   data: function() {
     return {
-      date: "",
+      date: dayjs(),
       mobile: "",
       name: "",
       idCard: "",
       ticket_today: 0,
       ticket_today_after_1: 0,
       ticket_today_after_2: 0,
-      today: dayjs().format("MM月DD日"),
-      today_after_1: dayjs()
-        .add(1, "day")
-        .format("MM月DD日"),
-      today_after_2: dayjs()
-        .add(2, "day")
-        .format("MM月DD日")
+      today: dayjs(),
+      today_after_1: dayjs().add(1, "day"),
+      today_after_2: dayjs().add(2, "day")
     };
   },
   computed: {
@@ -164,6 +148,12 @@ export default {
     isFutureDate(date) {
       const currentDate = new Date() - 1 * 24 * 60 * 60 * 1000;
       return date < currentDate;
+    },
+    isBefore51(time) {
+      return time.isBefore("2020-04-30 24:00:00");
+    },
+    select(date) {
+      this.date = dayjs(date);
     },
     getTicketInfo() {
       axios.get("/hl/pro/scenery/appoint/stat").then(res => {
@@ -201,7 +191,7 @@ export default {
       }
       axios
         .post("/hl/pro/scenery/appoint/submit", {
-          appointDate: this.date,
+          appointDate: this.date.format("YYYY-MM-DD"),
           idCard: this.idCard,
           name: this.name,
           tel: this.mobile
@@ -244,6 +234,16 @@ export default {
 .content {
   width: 7.5rem;
   padding: 0.4rem 0.3rem;
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    a {
+      font-size: 0.3rem;
+      color: rgba(12, 178, 219, 1);
+      font-weight: bold;
+    }
+  }
   .title {
     font-size: 0.34rem;
     font-family: PingFang SC;
@@ -284,7 +284,6 @@ export default {
           justify-content: space-between;
           width: 2.76rem;
           height: 0.8rem;
-          padding: 0.1rem;
           font-size: 0.24rem;
 
           span {
