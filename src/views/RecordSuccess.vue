@@ -1,33 +1,78 @@
 <template>
   <div class="record_success">
-    <section>
+    <section v-for="item in list" :key="item.id">
       <div class="top">
         <div class="title">预约入场券</div>
         <div class="content">
-          <span>{{ code }}</span>
-          <vue-qrcode :text="code" :size="200" :logoSrc="logoSrc" />
+          <span>{{ item.code }}</span>
+          <vue-qrcode :text="item.code" :size="200" :logoSrc="logoSrc" />
         </div>
         <span class="tip">请截图保存当前页面，以作为核销凭证</span>
       </div>
       <div class="bottom">使用说明：请在景区入口出示工作人员进行核销</div>
+      <img class="label" :src="getImage(item)" />
     </section>
   </div>
 </template>
 
 <script>
 import VueQrcode from "vue-qr";
+import axios from "axios";
+import dayjs from "dayjs/esm";
 export default {
   name: "Record",
   components: { VueQrcode },
   beforeMount() {
     const code = this.$route.query.code;
-    this.code = code;
+    if (code) {
+      axios.get(`/hl/pro/scenery/appoint/info/${code}`).then(res => {
+        if (res.status === 200) {
+          const data = res.data;
+          if (data.code === "0") {
+            this.list = [data.data];
+          } else {
+            this.$alert(data.message);
+          }
+        } else {
+          this.$alert("请求异常");
+        }
+      });
+    } else {
+      const mobile = this.$route.query.mobile;
+      const currentSelectedDay = this.$route.query.currentSelectedDay;
+      axios
+        .get(
+          `/hl/pro/scenery/appoint/list?tel=${mobile}&date=${currentSelectedDay.format(
+            "YYYY-MM-DD"
+          )}`
+        )
+        .then(res => {
+          if (res.status === 200) {
+            const data = res.data;
+            if (data.code === "0") {
+              this.list = data.data;
+            } else {
+              this.$alert(data.message);
+            }
+          } else {
+            this.$alert("请求异常");
+          }
+        });
+    }
   },
   data: function() {
     return {
-      code: "12345",
-      logoSrc: require("../assets/logo.png")
+      code: "",
+      logoSrc: require("../assets/logo.png"),
+      list: []
     };
+  },
+  methods: {
+    getImage(item) {
+      return item.personTarget === 2
+        ? require("../assets/child@2x.png")
+        : require("../assets/adult@2x.png");
+    }
   }
 };
 </script>
@@ -38,12 +83,21 @@ export default {
   padding: 0.4rem 0.3rem;
   font-size: 0.3rem;
   section {
+    position: relative;
+    margin-bottom: 0.3rem;
     width: 100%;
     height: 9rem;
     padding: 0.16rem;
     background: rgba(12, 178, 219, 1);
     box-shadow: 0px 1px 6px 0px rgba(110, 18, 0, 0.1);
     border-radius: 0.3rem 0.25rem 0.25rem 0.25rem;
+    .label {
+      position: absolute;
+      top: 1.4rem;
+      right: 0;
+      width: 1rem;
+      height: 0.64rem;
+    }
     .top {
       height: 7.54rem;
       background: rgba(255, 255, 255, 1);

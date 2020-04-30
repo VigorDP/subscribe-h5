@@ -13,7 +13,7 @@
     </section>
 
     <section class="list">
-      <div class="record-line" v-for="item in this.$route.query.list" :key="item.id">
+      <div class="record-line" v-for="item in list" :key="item.id">
         <div class="left">
           <div class="item">
             <span>入园人姓名：</span>
@@ -21,7 +21,7 @@
           </div>
           <div class="item">
             <span>入园人身份证号：</span>
-            <span>{{ item.idCard }}</span>
+            <span>{{ item.idCard || "无" }}</span>
           </div>
           <div class="item">
             <span>状态：</span>
@@ -36,19 +36,20 @@
               }"
             >
               {{
-              item.status === 1
-              ? "可用"
-              : item.status === 2
-              ? "已核销"
-              : "已过期"
+                item.status === 1
+                  ? "可用"
+                  : item.status === 2
+                  ? "已核销"
+                  : "已过期"
               }}
             </span>
           </div>
         </div>
-        <div class="right">
+        <div class="right" @click="handleClick(item.code)">
           <vue-qrcode :text="item.code" :size="250" :logoSrc="logoSrc" />
           <span>景区预约码：{{ item.code }}</span>
         </div>
+        <img class="label" :src="getImage(item)" />
       </div>
     </section>
   </div>
@@ -57,6 +58,7 @@
 <script>
 // @ is an alias to /src
 import dayjs from "dayjs";
+import axios from "axios";
 import VueQrcode from "vue-qr";
 export default {
   name: "Record",
@@ -67,7 +69,46 @@ export default {
       logoSrc: require("../assets/logo.png")
     };
   },
-  components: { VueQrcode }
+  components: { VueQrcode },
+  beforeMount() {
+    const mobile = this.$route.query.mobile;
+    axios
+      .get(
+        `/hl/pro/scenery/appoint/list?tel=${mobile}&date=${dayjs().format(
+          "YYYY-MM-DD"
+        )}`
+      )
+      .then(res => {
+        if (res.status === 200) {
+          const data = res.data;
+          if (data.code === "0") {
+            this.list = data.data;
+            if (data.data.length === 0) {
+              this.$alert("暂无记录");
+            }
+          } else {
+            this.$alert(data.message);
+          }
+        } else {
+          this.$alert("请求异常");
+        }
+      });
+  },
+  methods: {
+    handleClick(code) {
+      this.$router.push({
+        path: "/record-success",
+        query: {
+          code
+        }
+      });
+    },
+    getImage(item) {
+      return item.personTarget === 2
+        ? require("../assets/child@2x.png")
+        : require("../assets/adult@2x.png");
+    }
+  }
 };
 </script>
 
@@ -116,6 +157,14 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        position: relative;
+        .label {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 0.7rem;
+          height: 0.4rem;
+        }
         .left,
         .right {
           padding: 0.1rem;
@@ -139,6 +188,7 @@ export default {
         .right {
           align-items: center;
           justify-content: space-between;
+
           img {
             width: 2rem;
             height: 2rem;

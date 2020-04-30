@@ -17,8 +17,7 @@
 
 <script>
 // @ is an alias to /src
-import axios from "axios";
-import dayjs from "dayjs";
+
 import VueQrcode from "vue-qr";
 export default {
   name: "Record",
@@ -35,33 +34,12 @@ export default {
         this.$alert("预约人手机号为空或格式有误");
         return;
       }
-      axios
-        .get(
-          `/hl/pro/scenery/appoint/list?tel=${
-            this.mobile
-          }&date=${dayjs().format("YYYY-MM-DD")}`
-        )
-        .then(res => {
-          if (res.status === 200) {
-            const data = res.data;
-            if (data.code === "0") {
-              this.$router.push({
-                path: "/record-list",
-                query: {
-                  mobile: this.mobile,
-                  list: data.data
-                }
-              });
-              if (data.data.length === 0) {
-                this.$alert("暂无记录");
-              }
-            } else {
-              this.$alert(data.message);
-            }
-          } else {
-            this.$alert("请求异常");
-          }
-        });
+      this.$router.push({
+        path: "/record-list",
+        query: {
+          mobile: this.mobile
+        }
+      });
     }
   }
 };
