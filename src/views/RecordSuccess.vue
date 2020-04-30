@@ -42,9 +42,7 @@ export default {
       const currentSelectedDay = this.$route.query.currentSelectedDay;
       axios
         .get(
-          `/hl/pro/scenery/appoint/list?tel=${mobile}&date=${currentSelectedDay.format(
-            "YYYY-MM-DD"
-          )}`
+          `/hl/pro/scenery/appoint/list?tel=${mobile}&date=${currentSelectedDay}`
         )
         .then(res => {
           if (res.status === 200) {

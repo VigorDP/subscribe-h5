@@ -280,7 +280,9 @@ export default {
                 path: "/record-success",
                 query: {
                   mobile: this.mobile,
-                  currentSelectedDay: this.currentSelectedDay
+                  currentSelectedDay: this.currentSelectedDay.format(
+                    "YYYY-MM-DD"
+                  )
                 }
               });
             } else {
