@@ -203,6 +203,10 @@ export default {
     },
     addOrDeletePerson(key) {
       if (key === 0) {
+        if (this.persons.length === 5) {
+          this.$alert("最多可同时预约5人");
+          return;
+        }
         this.persons.push({ personTarget: "1", name: "", idCard: "" });
       } else {
         this.persons.splice(key, 1);
