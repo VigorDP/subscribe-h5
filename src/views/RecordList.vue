@@ -13,11 +13,7 @@
     </section>
 
     <section class="list">
-      <div
-        class="record-line"
-        v-for="item in this.$route.query.list"
-        :key="item.id"
-      >
+      <div class="record-line" v-for="item in this.$route.query.list" :key="item.id">
         <div class="left">
           <div class="item">
             <span>入园人姓名：</span>
@@ -40,11 +36,11 @@
               }"
             >
               {{
-                item.status === 1
-                  ? "可用"
-                  : item.status === 2
-                  ? "已核销"
-                  : "已过期"
+              item.status === 1
+              ? "可用"
+              : item.status === 2
+              ? "已核销"
+              : "已过期"
               }}
             </span>
           </div>
@@ -60,7 +56,6 @@
 
 <script>
 // @ is an alias to /src
-import axios from "axios";
 import dayjs from "dayjs";
 import VueQrcode from "vue-qr";
 export default {
